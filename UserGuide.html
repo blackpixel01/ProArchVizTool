@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProArchVizTool - User & Integration Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+
+    :root[data-theme="dark"] {
+      --bg-primary: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: #1e293b;
+      --border: #1e293b;
+      --text-primary: #f9fafb;
+      --text-secondary: #cbd5e1;
+      --text-muted: #6b7280;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      --shadow: rgba(0, 0, 0, 0.4);
+      --badge-bg: rgba(59, 130, 246, 0.15);
+      --badge-text: #60a5fa;
+      --highlight: #34d399;
+      --card-hover-shadow: rgba(59, 130, 246, 0.2);
+      
+      /* Sidebar specific colors (Midnight theme - sidebar matches card bg) */
+      --bg-sidebar: #0f172a;
+      --sidebar-border: #1e293b;
+      --text-sidebar-primary: #f9fafb;
+      --text-sidebar-secondary: #cbd5e1;
+      --text-sidebar-muted: #3b82f6; /* Bright Blue accent for Part headers */
+      --sidebar-hover: #1e293b;
+      --sidebar-active-bg: rgba(59, 130, 246, 0.15);
+    }
+
+    :root[data-theme="light"] {
+      --bg-primary: #f9f9fa; /* AVColors::Background */
+      --bg-secondary: #ffffff; /* AVColors::Surface */
+      --bg-card: #ffffff; /* AVColors::Surface */
+      --border: #e5e7eb; /* AVColors::Border */
+      --text-primary: #111827; /* AVColors::TextPrimary */
+      --text-secondary: #334155; /* AVColors::TextSecondary (Slate 700) */
+      --text-muted: #9fa3ae; /* AVColors::TextTertiary */
+      --accent: #1e40af; /* AVColors::Primary */
+      --accent-hover: #1d4ed8; /* AVColors::PrimaryHover */
+      --accent-gradient: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      --shadow: rgba(0, 0, 0, 0.05);
+      --badge-bg: #eff2ff; /* AVColors::PrimaryLight */
+      --badge-text: #1e40af; /* AVColors::Primary */
+      --highlight: #059669; /* AVColors::Success */
+      --card-hover-shadow: rgba(30, 64, 175, 0.1);
+      
+      /* Sidebar specific colors (Light Slate theme - sidebar matches white surface) */
+      --bg-sidebar: #ffffff;
+      --sidebar-border: #e5e7eb;
+      --text-sidebar-primary: #111827;
+      --text-sidebar-secondary: #334155;
+      --text-sidebar-muted: #1e40af; /* ArchViz Primary Blue for Part headers */
+      --sidebar-hover: #f1f2f4;
+      --sidebar-active-bg: #eff2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 300px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--sidebar-border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      z-index: 10;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .brand-logo-img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: var(--bg-primary);
+      padding: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-sidebar-primary);
+      line-height: 1.2;
+    }
+
+    .brand-version {
+      font-size: 10px;
+      background-color: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 24px;
+      padding-right: 4px;
+    }
+
+    .sidebar-menu::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-menu::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .sidebar-part-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      text-transform: none;
+      letter-spacing: normal;
+      color: var(--text-sidebar-muted);
+      margin-top: 24px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .sidebar-part-title:first-of-type {
+      margin-top: 0;
+    }
+
+    .sidebar-points {
+      list-style: none;
+    }
+
+    .sidebar-points a {
+      display: block;
+      padding: 6px 12px;
+      color: var(--text-sidebar-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      border-radius: 6px;
+      transition: background-color 0.2s, color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-points a:hover {
+      background-color: var(--sidebar-hover);
+      color: var(--text-sidebar-primary);
+    }
+
+    .sidebar-points li.active a {
+      background-color: var(--sidebar-active-bg);
+      color: var(--accent);
+      font-weight: 600;
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+    }
+
+    .theme-toggle-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--sidebar-hover);
+      border-color: var(--accent);
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--sidebar-active);
+      border-color: var(--accent);
+    }
+
+    /* Main Content */
+    main {
+      margin-left: 300px;
+      flex: 1;
+      padding: 48px;
+      max-width: 1100px;
+    }
+
+    /* Doc Header with Logo */
+    .doc-header {
+      margin-bottom: 48px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 32px;
+    }
+
+    .doc-header-top {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .doc-header-logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      padding: 6px;
+      box-shadow: 0 4px 6px var(--shadow);
+    }
+
+    .doc-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 38px;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .doc-header-top p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .doc-header-desc {
+      color: var(--text-secondary);
+      font-size: 16px;
+      line-height: 1.75;
+      max-width: 800px;
+    }
+
+    /* Part Sections Demarcation */
+    .part-section {
+      margin-bottom: 96px;
+      border-top: 2px solid var(--border);
+      padding-top: 48px;
+    }
+
+    .part-section:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .part-header {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .part-header::before {
+      content: "PART";
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      background: var(--accent-gradient);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .part-intro {
+      color: var(--text-secondary);
+      font-size: 16px;
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+
+    /* Point Cards Demarcation */
+    .point-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 16px var(--shadow);
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .point-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, transparent 50%, rgba(30, 64, 175, 0.03) 50%);
+      border-top-right-radius: 11px;
+      pointer-events: none;
+    }
+
+    .point-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--card-hover-shadow);
+      border-color: var(--accent);
+    }
+
+    .point-header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+      gap: 16px;
+    }
+
+    .point-header {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0;
+    }
+
+    .point-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .point-intro {
+      color: var(--text-secondary);
+      font-size: 15.5px;
+      line-height: 1.75;
+      margin-bottom: 24px;
+    }
+
+    /* Steps List */
+    .steps-list {
+      list-style: none;
+      counter-reset: step-counter;
+    }
+
+    .steps-list > li {
+      position: relative;
+      padding-left: 42px;
+      margin-bottom: 28px;
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+    }
+
+    .steps-list > li:last-child {
+      margin-bottom: 0;
+    }
+
+    .steps-list > li::before {
+      content: counter(step-counter);
+      counter-increment: step-counter;
+      position: absolute;
+      left: 0;
+      top: 3px;
+      width: 26px;
+      height: 26px;
+      background: var(--accent-gradient);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .steps-list strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    code {
+      background-color: var(--bg-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Substeps */
+    .substeps-list {
+      list-style: none;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    .substeps-list li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .substeps-list li::before {
+      content: "•";
+      color: var(--accent);
+      position: absolute;
+      left: 6px;
+      font-weight: 900;
+      font-size: 16px;
+      top: -1px;
+    }
+
+    /* Inline Images */
+    .image-container {
+      margin-top: 12px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: var(--bg-primary);
+      padding: 6px;
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .image-container:hover {
+      transform: scale(1.008);
+      border-color: var(--accent);
+    }
+
+    .image-container img {
+      display: block;
+      max-height: 220px;
+      max-width: 100%;
+      height: auto;
+      width: auto;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .image-caption {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Lightbox */
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(15, 23, 42, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      cursor: zoom-out;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #lightbox.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+
+    #lightbox.active img {
+      transform: scale(1);
+    }
+
+    #lightbox-caption {
+      margin-top: 16px;
+      color: #fff;
+      font-size: 14px;
+      font-style: italic;
+      text-align: center;
+      max-width: 80vw;
+      line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      aside {
+        width: 100%;
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      main {
+        margin-left: 0;
+        padding: 24px;
+      }
+      .sidebar-menu {
+        max-height: 240px;
+      }
+      .image-container img {
+        max-height: 180px;
+      }
+    }
+    
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand">
+      <img class="brand-logo-img" src="Images/logo.png" alt="ProArchViz Logo">
+      <div>
+        <div class="brand-name">Pro archviztool</div>
+        <span class="brand-version">v1.0</span>
+      </div>
+    </div>
+    <div class="sidebar-menu">
+<div class="sidebar-part-title">Part 1: Installation, GameMode & HUD Configuration</div>
+<ul class="sidebar-points">
+  <li><a href="#point-1-1">Point 1: Installation & Activation</a></li>
+  <li><a href="#point-1-2">Point 2: Content Folder Layout</a></li>
+  <li><a href="#point-1-3">Point 3: GameMode Core Architecture Se...</a></li>
+  <li><a href="#point-1-4">Point 4: HUD Customization & Custom Se...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 2: Archviz Pawn Navigation</div>
+<ul class="sidebar-points">
+  <li><a href="#point-2-1">Point 1: Orbit (3D Perspective) Mode S...</a></li>
+  <li><a href="#point-2-2">Point 2: Floor Plan (2D Orthographic) ...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 3: Smooth Camera Viewpoints System</div>
+<ul class="sidebar-points">
+  <li><a href="#point-3-1">Point 1: Viewpoint Placement & Rotatio...</a></li>
+  <li><a href="#point-3-2">Point 2: Viewpoint Parameter Configura...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 4: Day-Night Sky & Lighting Controller</div>
+<ul class="sidebar-points">
+  <li><a href="#point-4-1">Point 1: Light Actor & Tag Connections</a></li>
+  <li><a href="#point-4-2">Point 2: Time-of-Day Presets Configura...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 5: Lamp Groups Control System</div>
+<ul class="sidebar-points">
+  <li><a href="#point-5-1">Point 1: LampGroup Setup & Subgroup Ar...</a></li>
+  <li><a href="#point-5-2">Point 2: Assigning Light Components</a></li>
+  <li><a href="#point-5-3">Point 3: Emissive Material Synchroniza...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 6: Component-Based Material Swapper</div>
+<ul class="sidebar-points">
+  <li><a href="#point-6-1">Point 1: Material Groups Configuration</a></li>
+  <li><a href="#point-6-2">Point 2: Presets & Preview Options</a></li>
+</ul>
+<div class="sidebar-part-title">Part 7: Component-Based Furniture Swapper</div>
+<ul class="sidebar-points">
+  <li><a href="#point-7-1">Point 1: Mesh Options & Sizing Setting...</a></li>
+  <li><a href="#point-7-2">Point 2: Per-Variant Material Group Sy...</a></li>
+  <li><a href="#point-7-3">Point 3: Variant Material Presets Deta...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 8: Furniture Variant Lighting & LED Customization</div>
+<ul class="sidebar-points">
+  <li><a href="#point-8-1">Point 1: Subcomponent Light Tagging</a></li>
+  <li><a href="#point-8-2">Point 2: Furniture Light Properties</a></li>
+  <li><a href="#point-8-3">Point 3: LED Color Presets Setup</a></li>
+</ul>
+<div class="sidebar-part-title">Part 9: Interactive TV Component</div>
+<ul class="sidebar-points">
+  <li><a href="#point-9-1">Point 1: TV Screen Material & Texture ...</a></li>
+  <li><a href="#point-9-2">Point 2: Sound & Attenuation Settings</a></li>
+  <li><a href="#point-9-3">Point 3: MediaPlayer & Video Source Se...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 10: Interactive Door Component</div>
+<ul class="sidebar-points">
+  <li><a href="#point-10-1">Point 1: Door Mechanical & Animation S...</a></li>
+  <li><a href="#point-10-2">Point 2: Linked Doors & Audio Setup</a></li>
+</ul>
+<div class="sidebar-part-title">Part 11: Interactive Faucet Component</div>
+<ul class="sidebar-points">
+  <li><a href="#point-11-1">Point 1: Faucet Handle & Movement Sett...</a></li>
+  <li><a href="#point-11-2">Point 2: Water Simulation & Alembic Ca...</a></li>
+  <li><a href="#point-11-3">Point 3: Audio & Distance Attenuation ...</a></li>
+</ul>
+<div class="sidebar-part-title">Part 12: Product Information Catalog System</div>
+<ul class="sidebar-points">
+  <li><a href="#point-12-1">Point 1: Product Data Table Schema & E...</a></li>
+  <li><a href="#point-12-2">Point 2: Assigning Product Info to Act...</a></li>
+  <li><a href="#point-12-3">Point 3: Per-Variant Product Mapping</a></li>
+</ul>
+<div class="sidebar-part-title">Part 13: Room Annotation Component</div>
+<ul class="sidebar-points">
+  <li><a href="#point-13-1">Point 1: Room Labeling & Badge Placeme...</a></li>
+  <li><a href="#point-13-2">Point 2: Auto-Detection & Size Calcula...</a></li>
+  <li><a href="#point-13-3">Point 3: Dimensions Layout & Guide Lin...</a></li>
+</ul>
+
+    </div>
+    <button class="theme-toggle-btn" id="theme-toggle">☀️ Light Mode</button>
+  </aside>
+
+  <main>
+    <div class="doc-header">
+      <div class="doc-header-top">
+        <img class="doc-header-logo" src="Images/logo.png" alt="Pro archviztool Logo">
+        <div>
+          <h1>Pro archviztool</h1>
+          <p>User & Technical Integration Guide</p>
+        </div>
+      </div>
+      <p class="doc-header-desc">This comprehensive guide details the usage and configuration of the ProArchVizTool plugin in Unreal Engine 5. Learn how to structure directories, customize cameras, interact with lighting, swap materials/furniture, and calculate dimensions in real-time.</p>
+    </div>
+    
+<section id="part-1" class="part-section">
+  <h2 class="part-header">Part 1: Installation, GameMode & HUD Configuration</h2>
+  <p class="part-intro">This section covers the initial setup of the <strong>ProArchVizTool</strong> plugin, setting up the custom GameMode, and styling the Slate-based HUD.</p>
+  <div id="point-1-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Installation & Activation</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">To install and enable the ProArchVizTool features in your project:</p>
+    <ul class="steps-list">
+      <li>Locate your downloaded plugin folder (e.g., <code>ProArchVizTool</code>).
+      </li>
+      <li>Create a folder named <code>Plugins</code> at the root directory of your Unreal Engine project (if it does not already exist).
+      </li>
+      <li>Copy and paste the <code>ProArchVizTool</code> folder into your project's <code>Plugins</code> directory.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/project_plugins_folder.png" alt="Plugins Directory Structure">
+        <div class="image-caption">Figure 1.1: Project root folder structure showing the Plugins directory.</div>
+      </div>
+      </li>
+      <li>Open your project in the Unreal Editor.
+      </li>
+      <li>Open the <strong>Edit</strong> menu in the top toolbar of the editor and click on <strong>Plugins</strong>.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_plugin_activation_0.png" alt="Opening Plugins Menu">
+        <div class="image-caption">Figure 1.2: Selecting the Plugins menu under Edit.</div>
+      </div>
+      </li>
+      <li>Search for <code>Proarchviz tool</code> in the search box.
+      </li>
+      <li>Check the checkbox next to the plugin to enable it.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_plugin_activation_1.png" alt="Enabling Proarchviz Tool">
+        <div class="image-caption">Figure 1.3: Activating the Proarchviz tool version 1.0.</div>
+      </div>
+      </li>
+      <li>Restart the editor to complete the activation process.
+      </li>
+    </ul>
+  </div>
+  <div id="point-1-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Content Folder Layout</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">After activation, the plugin's built-in content, widgets, Blueprints, and assets will be accessible inside the Content Browser under the plugin directory:</p>
+    <ul class="steps-list">
+      <li>Click on the <strong>Settings</strong> cog icon in the top-right corner of the Content Browser.
+      </li>
+      <li>In the settings dropdown menu, make sure <strong>Show C++ Classes</strong> and <strong>Show Plugin Content</strong> are checked.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/show_plugin_content_settings.png" alt="Enabling Show Plugin Content">
+        <div class="image-caption">Figure 1.4: Content Browser settings dropdown with Show Plugin Content checked.</div>
+      </div>
+      </li>
+      <li>The plugin directory contains subfolders for Blueprints, UI assets, C++ classes, and configuration files.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/plugin_content_browser.png" alt="Plugins Folder Structure">
+        <div class="image-caption">Figure 1.5: Viewing the Proarchviz tool content and C++ class folders in the Content Browser.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+  <div id="point-1-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">GameMode Core Architecture Setup</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">The GameMode binds the custom pawn, controller, and HUD together to establish the architectural visualization interaction rules:</p>
+    <ul class="steps-list">
+      <li>Create a new Blueprint Class. In the <strong>Pick Parent Class</strong> window, search for and select <code>ArchVizGameMode</code> as the parent.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_classe_ArchvizGammode.png" alt="Selecting GameMode Parent Class">
+        <div class="image-caption">Figure 1.6: Creating a Blueprint class inheriting from the C++ class ArchVizGameMode.</div>
+      </div>
+      </li>
+      <li>Save and name this Blueprint (e.g., <code>BP_ArchvizGameMode</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_contentBrowser.png" alt="BP GameMode Asset saved in Content Browser">
+        <div class="image-caption">Figure 1.7: The BP_ArchvizGameMode asset in your project Content Browser.</div>
+      </div>
+      </li>
+      <li>Open the newly created <code>BP_ArchvizGameMode</code> and navigate to the <strong>Details</strong> panel:
+      <ul class="substeps-list">
+        <li><strong>Default Pawn Class</strong>: Assign <code>BP_ArchvizPawn</code>.</li>
+        <li><strong>HUD Class</strong>: Assign <code>BP_ArchvizHUD</code>.</li>
+        <li><strong>Player Controller Class</strong>: Assign <code>BP_ArchvizPlayerController</code>.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_BP_ArchvizGammode.png" alt="BP GameMode components hierarchy view">
+        <div class="image-caption">Figure 1.8: The BP_ArchvizGameMode components hierarchy view.</div>
+      </div>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_BP_ArchvizGammode_detail.png" alt="GameMode Default Classes Setup">
+        <div class="image-caption">Figure 1.9: Assigning the custom Pawn, HUD, and Player Controller overrides.</div>
+      </div>
+      </li>
+      <li>Compile and save the Blueprint.
+      </li>
+    </ul>
+  </div>
+  <div id="point-1-4" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">HUD Customization & Custom Settings</h3>
+      <span class="point-badge">Point 4</span>
+    </div>
+    <p class="point-intro">The HUD acts as the user interface controller, managing all tool panels. You can customize the look, branding, language, and sounds of your application here:</p>
+    <ul class="steps-list">
+      <li>Create a Blueprint Class inheriting from <code>ArchVizHUD</code> (e.g., <code>BP_ArchvizHUD</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_classe_ArchvizHud.png" alt="Selecting HUD Parent Class">
+        <div class="image-caption">Figure 1.10: Creating a Blueprint class inheriting from the C++ class ArchVizHUD.</div>
+      </div>
+      </li>
+      <li>Open the HUD Blueprint in the editor.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_BP_Archviz_hud.png" alt="BP HUD Asset">
+        <div class="image-caption">Figure 1.11: The BP_ArchvizHUD asset in your Content Browser.</div>
+      </div>
+      </li>
+      <li>Under the <strong>Details</strong> panel, configure the <strong>Menu Category</strong> settings (such as startup menu options, logo texture <code>MenuLogo</code>, quit button visibility, and language selector).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_BP_Archviz_hud_Menu.png" alt="HUD Menu Settings">
+        <div class="image-caption">Figure 1.12: Customizing main menu parameters, brand logo, and default tutorial settings.</div>
+      </div>
+      </li>
+      <li>Configure the <strong>UI Category</strong> settings (such as center crosshair size <code>CrosshairDotSize</code>, default opacity, base color, and interactive highlight colors).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_BP_Archviz_hud__UI.png" alt="HUD Crosshair & UI Theme">
+        <div class="image-caption">Figure 1.13: Setting up crosshair sizing, opacity values, and active selection color codes.</div>
+      </div>
+      </li>
+      <li>Configure the <strong>Audio Category</strong> settings (such as selecting specific sound cue/wav assets for interface interactions like <code>PanelOpenSound</code>, <code>UIClickSound</code>, and <code>LightSwitchSound</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/intro/1_BP_Archviz_hud__UI_sound.png" alt="HUD Audio Assets">
+        <div class="image-caption">Figure 1.14: Setting up sound effects for panel openings, light toggles, and clicks.</div>
+      </div>
+      </li>
+      <li>Compile and save the Blueprint.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-2" class="part-section">
+  <h2 class="part-header">Part 2: Archviz Pawn Navigation</h2>
+  <p class="part-intro">The custom navigation system supports two distinct view modes: <strong>Orbit (3D Perspective) Mode</strong> and <strong>Floor Plan (2D Orthographic) Mode</strong>. This allows users to inspect details from a standard viewpoint or switch to a structured layout map.</p>
+  <div id="point-2-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Orbit (3D Perspective) Mode Setup</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Orbit mode allows the user to rotate, pan, and zoom around a target focal point, offering an interactive 3D inspection view of the scene.</p>
+    <ul class="steps-list">
+      <li>Open your <code>BP_ArchvizPawn</code> Blueprint or select the pawn instance in the level.
+      </li>
+      <li>In the <strong>Details</strong> panel, navigate to the <strong>Camera</strong> category to configure the custom orbit, panning, and zoom parameters:
+      <ul class="substeps-list">
+        <li><strong>Orbit Speed</strong> & <strong>Pan Speed</strong>: Define the responsiveness of rotation and horizontal movement.</li>
+        <li><strong>Zoom Speed</strong> & <strong>Zoom Interp Speed</strong>: Set mouse wheel zoom speed and interpolation smoothness.</li>
+        <li><strong>Min Arm Length</strong> & <strong>Max Arm Length</strong>: Establish constraints for minimum and maximum camera zoom distance (e.g., <code>50.0</code> to <code>3000.0</code>).</li>
+        <li><strong>Min Pitch</strong> & <strong>Max Pitch</strong>: Control vertical viewing limits (e.g., <code>-85.0</code> to <code>85.0</code> degrees).</li>
+        <li><strong>Orbit Smooth</strong> & <strong>Pan Smooth</strong>: Configure transition damping parameters for fluid movement.</li>
+        <li><strong>Min FOV</strong> & <strong>Max FOV</strong>: Restrict the Field of View limits (e.g., <code>30.0</code> to <code>110.0</code> degrees).</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti2/Archvizpawn_orbit.png" alt="Orbit Camera Arm Configuration">
+        <div class="image-caption">Figure 2.1: Configuring the camera parameters on the Archviz Pawn for 3D navigation.</div>
+      </div>
+      </li>
+      <li>Under the <strong>Collision</strong> category, define the pawn's navigation boundaries:
+      <ul class="substeps-list">
+        <li><strong>Collision Radius</strong>: Set the bounding sphere radius to prevent clipping through meshes (e.g., <code>25.0</code>).</li>
+        <li><strong>Min Height Above Floor</strong>: Enforce a minimum safety height for the pawn (e.g., <code>40.0</code>).</li>
+      </ul>
+      </li>
+      <li>Select the child <strong>Camera</strong> component to verify default Unreal Engine parameters under the <strong>Camera</strong> section:
+      <ul class="substeps-list">
+        <li><strong>Projection Mode</strong>: Set to <code>Perspective</code>.</li>
+        <li><strong>Field of View</strong>: Set the default angle (e.g., <code>90.0</code> degrees).</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti2/camera_perspective_setup.png" alt="Camera Perspective Settings">
+        <div class="image-caption">Figure 2.2: Adjusting default perspective projection mode and Field of View settings.</div>
+      </div>
+      </li>
+      <li>Compile and save the Blueprint.
+      </li>
+    </ul>
+  </div>
+  <div id="point-2-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Floor Plan (2D Orthographic) Mode Setup</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Floor Plan mode shifts the perspective to a top-down layout map view, letting users inspect floor layout spaces.</p>
+    <ul class="steps-list">
+      <li>Open the <code>BP_ArchvizPawn</code> Blueprint and navigate to the <strong>Details</strong> panel.
+      </li>
+      <li>Under the <strong>Top-Down</strong> category, customize the top-down camera behavior:
+      <ul class="substeps-list">
+        <li><strong>Top Down Height</strong>: Set the default camera elevation height above the floor (e.g., <code>2000.0</code>).</li>
+        <li><strong>Top Down Max Pan X / Y</strong>: Restrict horizontal panning bounds in the world space (e.g., <code>1200.0</code>).</li>
+        <li><strong>Top Down Pan / Rotation / Zoom Smooth</strong>: Tune interpolation speeds for panning, rotating, and zooming movements in plan view.</li>
+        <li><strong>Top Down Min Zoom / Max Zoom</strong>: Define camera height limits during zoom interactions (e.g., <code>700.0</code> to <code>2000.0</code>).</li>
+        <li><strong>Top Down Pitch</strong>: Enforce a default downward pitch angle for top-down perspective alignment (e.g., <code>-60.0</code>).</li>
+        <li><strong>Top Down Min / Max Pitch</strong>: Set the allowed pitch range (e.g., <code>-89.9</code> to <code>-45.0</code> degrees).</li>
+        <li><strong>Top Down Center Actor</strong>: Select or link a center pivot actor to define the main focus center point.</li>
+        <li><strong>Hide in Plan View Tag</strong>: Specify an actor tag (e.g., <code>HideInPlan</code>) to automatically hide selected actors (like ceilings or lights) when switching to Floor Plan mode.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti2/Archvizpawn_plan.png" alt="Plan Mode Camera Configuration">
+        <div class="image-caption">Figure 2.3: Adjusting camera projection properties for Floor Plan navigation.</div>
+      </div>
+      </li>
+      <li>Add the actor tag <code>HideInPlan</code> to any level meshes that block the top-down camera view (such as ceilings, roof plates, or upper floor boards) to make them disappear automatically in plan view.
+      </li>
+      <li>Compile and save the Blueprint.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-3" class="part-section">
+  <h2 class="part-header">Part 3: Smooth Camera Viewpoints System</h2>
+  <p class="part-intro">The Viewpoints system allows users to define target camera angles in the showroom level, enabling smooth transitions between rooms or highlight areas upon selecting buttons in the HUD.</p>
+  <div id="point-3-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Viewpoint Placement & Rotation</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">To setup camera checkpoints in your visualization project:</p>
+    <ul class="steps-list">
+      <li>Drag and place the <code>CameraViewpoint</code> actor from the content list into your level viewport.
+      </li>
+      <li>Position and rotate the actor to face the specific room or area you want to showcase (e.g., the living room, kitchen, or balcony).
+      </li>
+    </ul>
+  </div>
+  <div id="point-3-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Viewpoint Parameter Configurations</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Customize the camera properties on the placed actor instance to configure the UI card and transition target:</p>
+    <ul class="steps-list">
+      <li>Select the placed <code>CameraViewpoint</code> actor in the editor.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti3/camera_viewpoint.png" alt="Camera Viewpoint Settings">
+        <div class="image-caption">Figure 3.1: Details panel configuration for a custom CameraViewpoint actor.</div>
+      </div>
+      </li>
+      <li>In the <strong>Details</strong> panel under the <strong>Viewpoint</strong> category, configure:
+      <ul class="substeps-list">
+        <li><strong>Display Name</strong>: Enter the text label shown on the HUD selection card (e.g., <code>Living Room</code>).</li>
+        <li><strong>Camera Distance</strong>: Adjust the float value for the spring arm length from the pivot point (e.g., <code>42.0</code>).</li>
+        <li><strong>Camera Rotation</strong>: Configure pitch, yaw, and roll default offset values for camera alignment.</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-4" class="part-section">
+  <h2 class="part-header">Part 4: Day-Night Sky & Lighting Controller</h2>
+  <p class="part-intro">The <code>LightingController</code> manages level lighting actors, fog levels, and day-night presets, allowing users to toggle time-of-day scenarios interactively from the HUD.</p>
+  <div id="point-4-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Light Actor & Tag Connections</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">To sync environmental lighting with the controller, you must bind your level lighting actors:</p>
+    <ul class="steps-list">
+      <li>Place the <code>LightingController</code> actor in your level.
+      </li>
+      <li>In the <strong>Details</strong> panel under the <strong>Lighting</strong> category, link the following actors:
+      <ul class="substeps-list">
+        <li><strong>Sun Light</strong>: Assign your DirectionalLight (representing the sun).</li>
+        <li><strong>Ambient Sky Light</strong>: Assign your SkyLight.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti4/lighting_controller_setup.png" alt="Lighting Controller Links">
+        <div class="image-caption">Figure 4.1: Linking primary sky lights and entering identification tags.</div>
+      </div>
+      </li>
+      <li>Configure the identification tags to locate interior and exterior lights in your scene:
+      <ul class="substeps-list">
+        <li><strong>Interior Light Tag</strong>: Enter <code>InteriorLight</code> (matching tags on your indoor lights).</li>
+        <li><strong>Daylight Light Tag</strong>: Enter <code>DaylightPortal</code> (matching tags on your daylight portal lights).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-4-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Time-of-Day Presets Configuration</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Atmospheric presets are stored in the <code>Scene Presets</code> array, defining sun angles and light settings for each time-of-day option:</p>
+    <ul class="steps-list">
+      <li>Expand the <strong>Presets -> Scene Presets</strong> array in the <code>LightingController</code> properties.
+      </li>
+      <li>For each preset index (e.g. night, Day), configure the following values:
+      <ul class="substeps-list">
+        <li><strong>Name</strong>: The display name shown in the HUD (e.g., "night", "Day").</li>
+        <li><strong>Icon</strong>: Unicode symbol representing the time of day.</li>
+        <li><strong>Time Of Day</strong>: Float value between <code>0.0</code> and <code>1.0</code> controlling the sun's height/rotation (e.g., <code>0.75</code> for night, <code>0.0</code> for day).</li>
+        <li><strong>Interior Lights On</strong>: Check this box if you want interior spot/point lights to turn on automatically during this preset (e.g., night-time).</li>
+        <li><strong>Button Color</strong>: The button highlight color used in the HUD menu card.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti4/lighting_presets_details.png" alt="Scene Presets Array Settings">
+        <div class="image-caption">Figure 4.2: Expanding and customizing the parameters for day and night presets.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-5" class="part-section">
+  <h2 class="part-header">Part 5: Lamp Groups Control System</h2>
+  <p class="part-intro">The <code>LampGroupActor</code> coordinates groups and subgroups of light fixtures, synchronizing light actors and emissive materials to toggle light states and light intensity dynamically.</p>
+  <div id="point-5-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">LampGroup Setup & Subgroup Array</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">To define a collection of lamps under a single UI group:</p>
+    <ul class="steps-list">
+      <li>Place a <code>LampGroupActor</code> in your level.
+      </li>
+      <li>Under the <strong>Lamp Group</strong> category in the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Group Name</strong>: Set the category header name (e.g., <code>spot</code>).</li>
+        <li><strong>Sub Groups</strong>: Add element indices representing subgroups (e.g., Living Room Spots, Kitchen Spots).</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti5/lampgroup_setup.png" alt="Lamp Group Component">
+        <div class="image-caption">Figure 5.1: Defining the primary Group Name and Sub Groups array size.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+  <div id="point-5-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Assigning Light Components</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Link the individual light actors that belong to each subgroup:</p>
+    <ul class="steps-list">
+      <li>Expand a subgroup index (e.g., Index [1]).
+      </li>
+      <li>Set the <strong>Name</strong> parameter of the subgroup (e.g., <code>spot Salon</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti5/lampgroup_subgroups.png" alt="Assigning Lights to Subgroup">
+        <div class="image-caption">Figure 5.2: Linking the Spot lights array and setting up emissive meshes.</div>
+      </div>
+      </li>
+      <li>Add elements to the <strong>Lights</strong> array and link them to the specific light components or actors (e.g. RectLights, SpotLights) in the level.
+      </li>
+    </ul>
+  </div>
+  <div id="point-5-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Emissive Material Synchronization</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">To make light fixture meshes glow automatically when turned on:</p>
+    <ul class="steps-list">
+      <li>Under the subgroup settings:
+      <ul class="substeps-list">
+        <li><strong>Emissive Mesh Actors</strong>: Reference the target static mesh actor in the level.</li>
+        <li><strong>Emissive Material Slots</strong>: Enter the material slot index on the static mesh that contains the emissive material (e.g., slot <code>1</code>).</li>
+        <li><strong>Emissive Parameter Name</strong>: Set the scalar parameter name defined in the material shader (e.g., <code>EmissiveIntensity</code>).</li>
+        <li><strong>Emissive Color Parameter Name</strong>: Set the vector parameter name for color (e.g., <code>EmissiveColor</code>).</li>
+        <li><strong>Max Emissive Value / Off Emissive Value</strong>: Set the intensity multiplier for the emissive glow in the ON (e.g. <code>0.5</code>) and OFF (e.g. <code>0.02</code>) states.</li>
+        <li><strong>Max Light Intensity / Default Intensity</strong>: Set the light components brightness range.</li>
+        <li><strong>Use Color Temperature / Color Temperature</strong>: Enable color temperature presets (e.g. <code>7500K</code>).</li>
+        <li><strong>Start On / Is On</strong>: Toggle checkboxes to define the default active state of the subgroup.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti5/lampgroup_details.png" alt="Subgroup Material Details">
+        <div class="image-caption">Figure 5.3: Customizing emissive parameters, light intensities, and default states.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-6" class="part-section">
+  <h2 class="part-header">Part 6: Component-Based Material Swapper</h2>
+  <p class="part-intro">The <code>MaterialSwapComponent</code> enables users to select alternative materials for specific static mesh slots (such as seat cushions, floors, or tables) dynamically from the HUD.</p>
+  <div id="point-6-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Material Groups Configuration</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Attach and define the mesh slots targets on your interactive actors:</p>
+    <ul class="steps-list">
+      <li>Attach the <code>MaterialSwapComponent</code> to your target actor (e.g., <code>Aria_Armchair_001</code>).
+      </li>
+      <li>Navigate to the <strong>Material Swap</strong> category in the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Material Groups</strong>: Add elements to define material swapping categories.</li>
+        <li><strong>Group Name</strong>: Set the category label (e.g., <code>armchair</code>).</li>
+        <li><strong>Target Slot Indices</strong>: Add the slot IDs of the static mesh material slots to modify (e.g., index <code>2</code> for seat cushion material).</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti6/material_swap_armchair_groups.png" alt="Material Swap Group Settings">
+        <div class="image-caption">Figure 6.1: Setting up Material Groups and target slot indexes.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+  <div id="point-6-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Presets & Preview Options</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Store the available material choices for users to select in the HUD menu:</p>
+    <ul class="steps-list">
+      <li>In the target group, expand the <strong>Presets</strong> array.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti6/material_swap_armchair_presets.png" alt="Material Swap Presets Settings">
+        <div class="image-caption">Figure 6.2: Assigning material presets, colors, and thumbnails.</div>
+      </div>
+      </li>
+      <li>For each preset index, define:
+      <ul class="substeps-list">
+        <li><strong>Preset Name</strong>: Display text shown in the HUD selection card (e.g., <code>Material</code>).</li>
+        <li><strong>Material</strong>: Assign the material asset interface.</li>
+        <li><strong>Preview Color</strong>: Highlight color shown in the selection card.</li>
+        <li><strong>Preview Thumbnail</strong>: The texture asset showing the material texture preview.</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-7" class="part-section">
+  <h2 class="part-header">Part 7: Component-Based Furniture Swapper</h2>
+  <p class="part-intro">The <code>FurnitureSwapComponent</code> enables users to swap meshes dynamically (e.g., switching wall panel designs or sofa models) from the HUD. It also coordinates material modifications corresponding to the active mesh variant automatically.</p>
+  <div id="point-7-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Mesh Options & Sizing Settings</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Set up the alternative meshes and preview data:</p>
+    <ul class="steps-list">
+      <li>Attach the <code>FurnitureSwapComponent</code> to your target actor (e.g., <code>wallpanel1</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti7/furniture_swap_setup.png" alt="Furniture Options Sizing">
+        <div class="image-caption">Figure 7.1: Aligning mesh options, name tags, and grow animations.</div>
+      </div>
+      </li>
+      <li>In the Details panel under the <strong>Furniture Options</strong> category:
+      <ul class="substeps-list">
+        <li><strong>Furniture Options</strong>: Add elements and link alternative static mesh assets (e.g., <code>wallpanel1</code>, <code>wallpanel2</code>, <code>wallpanel3</code>).</li>
+        <li><strong>Furniture Names</strong>: Set the name label shown on the HUD cards (e.g., <code>wall pannel 1</code>, <code>wall pannel 2</code>).</li>
+        <li><strong>Furniture Thumbnails</strong>: Assign preview thumbnail textures for selection buttons.</li>
+        <li><strong>Grow Duration</strong>: Set the animation duration (e.g., <code>0.25</code> seconds) for the scaling effect when switching furniture.</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-7-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Per-Variant Material Group Sync</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Configure material swaps to trigger automatically when specific meshes are activated:</p>
+    <ul class="steps-list">
+      <li>In the component settings, navigate to the <strong>Materials</strong> category.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti7/furniture_swap_materials.png" alt="Per-Variant Material Mapping">
+        <div class="image-caption">Figure 7.2: Defining slot index mapping under variant material groups.</div>
+      </div>
+      </li>
+      <li>In the <strong>Per Variant Materials</strong> array:
+      <ul class="substeps-list">
+        <li>Add index elements corresponding to each furniture option (e.g., Index [0] maps to the first wall panel mesh).</li>
+        <li><strong>Material Groups</strong>: Add a swapping category under this variant (e.g., <code>Material</code>).</li>
+        <li><strong>Target Slot Indices</strong>: Define slot indexes for variant materials (e.g., slot <code>0</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-7-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Variant Material Presets Details</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">Set up the specific materials available for each mesh variant:</p>
+    <ul class="steps-list">
+      <li>Under the variant's material group, expand the <strong>Presets</strong> array.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti7/furniture_swap_presets.png" alt="Variant Material Presets">
+        <div class="image-caption">Figure 7.3: Assigning material assets and previews for specific furniture variants.</div>
+      </div>
+      </li>
+      <li>For each material option, assign:
+      <ul class="substeps-list">
+        <li><strong>Preset Name</strong>: Text label (e.g., <code>Material</code>).</li>
+        <li><strong>Material</strong>: The target material interface asset (e.g., <code>floor2</code> or <code>floor1</code>).</li>
+        <li><strong>Preview Color</strong>: Selection card background tint.</li>
+        <li><strong>Preview Thumbnail</strong>: The thumbnail texture showing the material sample.</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-8" class="part-section">
+  <h2 class="part-header">Part 8: Furniture Variant Lighting & LED Customization</h2>
+  <p class="part-intro">When static mesh variants have built-in lights (such as LED strips, backlight panels, or side lamps), the system allows you to link specific light components to furniture variants and customize their color presets from the HUD.</p>
+  <div id="point-8-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Subcomponent Light Tagging</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Link child light components to their corresponding furniture mesh option:</p>
+    <ul class="steps-list">
+      <li>Attach light components (e.g., point lights or spot lights like <code>led_left_var0</code>) as child components to your interactive actor (e.g., <code>wallpanel1</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti8/furniture_swap_light_tags.png" alt="Light Component Tagging">
+        <div class="image-caption">Figure 8.1: Assigning Var0 tag to associate subcomponent lights with variant meshes.</div>
+      </div>
+      </li>
+      <li>Select the target light component, and search for the <strong>Tags</strong> section in the Details panel.
+      </li>
+      <li>In the <strong>Component Tags</strong> array:
+      <ul class="substeps-list">
+        <li>Add a unique tag corresponding to the variant index (e.g., enter <code>Var0</code> at Index [0] to associate this light with the first furniture option).</li>
+        <li>The plugin automatically toggles visibility and settings based on these tags when switching options.</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-8-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Furniture Light Properties</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Enable lighting controls on your furniture swapping actor:</p>
+    <ul class="steps-list">
+      <li>Select your <code>FurnitureSwapComponent</code>.
+      </li>
+      <li>Locate the <strong>Light</strong> category in the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Has Lights</strong>: Check this box to enable integrated light variants.</li>
+        <li><strong>Is Light On</strong>: Set the default active state of the variant lights (ON/OFF).</li>
+        <li><strong>Current LEDColor</strong>: The active color state of the lights.</li>
+        <li><strong>Current LEDIntensity / Max LEDIntensity</strong>: Configure brightness parameters and maximum threshold limit (e.g., <code>0.3</code>).</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti8/furniture_swap_lights.png" alt="HUD Light Property Settings">
+        <div class="image-caption">Figure 8.2: Configuring Has Lights checkbox and light intensity thresholds.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+  <div id="point-8-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">LED Color Presets Setup</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">Configure the preset colors that users can cycle through using sliders/buttons:</p>
+    <ul class="steps-list">
+      <li>In the <code>FurnitureSwapComponent</code>, expand the <strong>Per Variant Materials</strong> settings.
+      </li>
+      <li>Open the <strong>LEDColor Presets</strong> array:
+      <ul class="substeps-list">
+        <li>Add color choices shown in the UI.</li>
+        <li>For each preset, set <strong>Name</strong> (e.g. <code>yellow</code>, <code>white</code>, <code>blue</code>) and select the corresponding <strong>Color</strong> parameters.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti8/furniture_swap_led_colors.png" alt="LED Colors Configuration">
+        <div class="image-caption">Figure 8.3: Customizing the names and values for LED color presets.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-9" class="part-section">
+  <h2 class="part-header">Part 9: Interactive TV Component</h2>
+  <p class="part-intro">The <code>TV</code> component (used alongside the <code>Interactable</code> component) enables interactive television blueprint systems, letting users turn it on/off, select channels, play videos, and control spatial audio.</p>
+  <div id="point-9-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">TV Screen Material & Texture Setup</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Configure the screen mesh and texture parameters:</p>
+    <ul class="steps-list">
+      <li>Attach the <code>TV</code> and <code>Interactable</code> components to your TV actor.
+      </li>
+      <li>Create a Material containing a 2D Texture parameter linked to the Emissive channel (e.g., <code>M_TV_Screen</code>).
+      </li>
+      <li>Under the <strong>TV</strong> settings in the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Static Mesh Component</strong>: Assign the static mesh component that represents the screen geometry.</li>
+        <li><strong>Screen Material Slot</strong>: Enter the material slot index on the static mesh representing the screen (e.g., slot <code>1</code>).</li>
+        <li><strong>Param Name</strong>: Set the texture parameter name defined in the screen shader (e.g., <code>ScreenTexture</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-9-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Sound & Attenuation Settings</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Configure the spatialized audio that matches the video states:</p>
+    <ul class="steps-list">
+      <li>Add an child <strong>Audio</strong> component to your TV actor (e.g., <code>TV_Sound</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti9/tv_screen_audio.png" alt="TV Screen Audio Settings">
+        <div class="image-caption">Figure 9.1: Configuring the screen mesh, material parameters, and child audio component.</div>
+      </div>
+      </li>
+      <li>Under the <strong>TV</strong> component settings, assign the child component:
+      <ul class="substeps-list">
+        <li><strong>Audio Component</strong>: Link the child audio component.</li>
+        <li><strong>Sound Attenuation</strong>: Link a Sound Attenuation asset (e.g., <code>ATT_TV</code>) to physicalize distance-based audio volume falloff.</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-9-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">MediaPlayer & Video Source Setup</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">Configure media players and default texture states:</p>
+    <ul class="steps-list">
+      <li>Locate the <strong>TV</strong> category settings:
+      <ul class="substeps-list">
+        <li><strong>Media Player</strong>: Link your custom Unreal Engine <code>MediaPlayer</code> asset.</li>
+        <li><strong>Video Source</strong>: Assign a default Media Source asset (local MP4 file or network stream).</li>
+        <li><strong>Default Screen Color</strong>: Configure the background color of the screen when turned OFF.</li>
+        <li><strong>Intensity Screen</strong>: Adjust the emissive texture glow brightness when turned ON (e.g., <code>1.5</code>).</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti9/tv_screen_media.png" alt="TV Media Settings">
+        <div class="image-caption">Figure 9.2: Binding MediaPlayer objects, setting default video streams, and tuning screen brightness.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-10" class="part-section">
+  <h2 class="part-header">Part 10: Interactive Door Component</h2>
+  <p class="part-intro">The <code>Door</code> component (used alongside the <code>Interactable</code> component) enables doors, drawers, or cabinet panels to rotate or slide open interactively when clicked, supporting angle constraints and spatialized sound effects.</p>
+  <div id="point-10-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Door Mechanical & Animation Setup</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Configure the movement type, target mesh, and limits:</p>
+    <ul class="steps-list">
+      <li>Attach the <code>Door</code> and <code>Interactable</code> components to your door actor.
+      </li>
+      <li>Under the <strong>Door</strong> category in the Details panel, configure the mechanical parameters:
+      <ul class="substeps-list">
+        <li><strong>Door Type</strong>: Select <code>Rotation</code> (for swing doors) or <code>Sliding</code> (for drawers, cabinets, and sliding doors).</li>
+        <li><strong>Target Component</strong>: Select the child static mesh component to animate (e.g., the door panel mesh).</li>
+        <li><strong>Limits</strong>:</li>
+        <li><strong>Max Rotation Angle</strong>: Define the maximum swing angle in degrees (e.g., <code>90.0</code> or <code>-90.0</code>).</li>
+        <li><strong>Max Slide Distance</strong>: Define the maximum sliding distance in centimeters (e.g., <code>120.0</code>).</li>
+        <li><strong>Door Speed</strong>: Adjust the open/close animation speed multiplier (e.g., <code>3.0</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-10-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Linked Doors & Audio Setup</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Sync double doors and configure spatialized sound assets:</p>
+    <ul class="steps-list">
+      <li>Link double doors to open together:
+      <ul class="substeps-list">
+        <li><strong>Linked Doors</strong>: Add actors to the array to trigger synchronous openings (e.g., when the left door is clicked, the right door swings open automatically).</li>
+      </ul>
+      </li>
+      <li>Configure audio effects under the <strong>Audio</strong> category:
+      <ul class="substeps-list">
+        <li><strong>Open Sound</strong> & <strong>Close Sound</strong>: Assign sound cue assets for opening and closing sounds.</li>
+        <li><strong>Audio Attenuation</strong>: Link a Sound Attenuation asset to enforce distance-based audio falloff.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti10/door_setup.png" alt="Door Component Settings">
+        <div class="image-caption">Figure 10.1: Configuring movement types, animation limits, dual-door linkages, and spatialized audio cues.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-11" class="part-section">
+  <h2 class="part-header">Part 11: Interactive Faucet Component</h2>
+  <p class="part-intro">The <code>Faucet</code> component (used alongside the <code>Interactable</code> component) enables interactive tap assemblies, letting users click to turn on/off water flow. It coordinates faucet handle rotation, manages spatialized running water sound cues, and drives water simulation assets such as Alembic Geometry Caches or Niagara systems.</p>
+  <div id="point-11-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Faucet Handle & Movement Settings</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Set up the mechanical handle rotation when the faucet is turned on:</p>
+    <ul class="steps-list">
+      <li>Select the Faucet Actor in your level (e.g., <code>faucet_cgsan_com001</code>).
+      </li>
+      <li>Attach the <code>Faucet</code> and <code>Interactable</code> components.
+      </li>
+      <li>Select the <strong>Faucet</strong> component and navigate to the <strong>Faucet</strong> category in the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Handle Component Name</strong>: Enter the exact name of the child static mesh component representing the handle (leave as <code>None</code> to target the default handle sub-component).</li>
+        <li><strong>Open Rotation Offset</strong>: Set the rotation values (Roll, Pitch, Yaw) applied to the handle when fully opened (e.g., <code>-90.0</code>, <code>0.0</code>, <code>0.0</code> degrees).</li>
+        <li><strong>Animation Speed</strong>: Adjust the speed multiplier for the rotation animation (e.g., <code>2.5</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-11-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Water Simulation & Alembic Cache Setup</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Configure the visual water flow using Alembic Geometry Cache files or Niagara particle systems:</p>
+    <ul class="steps-list">
+      <li>Attach a <strong>Geometry Cache</strong> component as a child component to the actor.
+      </li>
+      <li>Select the <strong>Geometry Cache</strong> component and assign the source asset (e.g., <code>water_simulation</code>) and the water material (e.g., <code>M_Water_Ocean1</code>).
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti11/faucet_simulation.png" alt="Water Simulation Component">
+        <div class="image-caption">Figure 11.1: Geometry Cache component structure and water material slot configuration.</div>
+      </div>
+      </li>
+      <li>Under the <strong>Faucet</strong> component properties, configure the following:
+      <ul class="substeps-list">
+        <li><strong>Water Effect</strong>: Link a particle system or Niagara effect if not using Geometry Cache (otherwise set to <code>None</code>).</li>
+        <li><strong>Water Attach Point Name</strong>: The name of the socket or attach point on the mesh where the water simulation should align (e.g., <code>None</code>).</li>
+        <li><strong>Alembic Category</strong>:</li>
+        <li><strong>Loop Start Time</strong>: Set the start timestamp in seconds for the looped section of the Alembic simulation cache (e.g., <code>1.0</code>).</li>
+        <li><strong>Loop End Time</strong>: Set the end timestamp in seconds for the looped section (e.g., <code>3.9</code>).</li>
+        <li><strong>Auto Align Water</strong>: Check to let the system automatically position the water stream.</li>
+        <li><strong>Water ZScale</strong>: Define the vertical scaling scale factor for the water flow (e.g., <code>1.0</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-11-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Audio & Distance Attenuation Settings</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">Configure the spatialized audio that matches the running water states:</p>
+    <ul class="steps-list">
+      <li>Locate the <strong>Audio</strong> category under the <strong>Faucet</strong> component:
+      <ul class="substeps-list">
+        <li><strong>Water Sound</strong>: Assign the sound wave or cue asset for flowing water (e.g., <code>Bathroom_Tap_Water_Source</code>).</li>
+        <li><strong>Loop Sound</strong>: Check this box to enable continuous looping of the flowing sound while the tap is active.</li>
+        <li><strong>Audio Attenuation</strong>: Link a Sound Attenuation asset (e.g., <code>ATT_water</code>) to enable physical distance-based audio volume falloff.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti11/faucet_details.png" alt="Faucet Details Setup">
+        <div class="image-caption">Figure 11.2: Faucet movement properties, audio settings, and Alembic cache looping parameters.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-12" class="part-section">
+  <h2 class="part-header">Part 12: Product Information Catalog System</h2>
+  <p class="part-intro">The <code>ProductInfo</code> component allows actors to link with a central Unreal Engine Data Table database (<code>ProductCatalog</code>), displaying specifications (name, brand, price, description, URL, and preview thumbnails) of furniture or fittings when selected in the showroom viewport. It also coordinates with furniture swapping so that switching a mesh variant automatically pulls the corresponding product info row.</p>
+  <div id="point-12-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Product Data Table Schema & Entry Creation</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Create and fill the central catalog database with product details:</p>
+    <ul class="steps-list">
+      <li>Open your <code>ProductCatalog</code> Data Table asset in the Unreal Editor.
+      </li>
+      <li>Click <strong>Add</strong> to create a new row, and assign a unique <strong>Row Name</strong> identifier (e.g., <code>Canape_Loft_4P</code>).
+      </li>
+      <li>Fill out the properties in the Row Editor:
+      <ul class="substeps-list">
+        <li><strong>Product Name</strong>: The display title shown to users (e.g., <code>Canapé Loft 4 Places</code>).</li>
+        <li><strong>Brand Name</strong>: Manufacturer/Brand label (e.g., <code>Maison Design DZ</code>).</li>
+        <li><strong>Price / Currency</strong>: Numeric cost and currency symbol (e.g., <code>3500.0</code> and <code>$</code>).</li>
+        <li><strong>Description</strong>: A detailed description of dimensions, materials, and styling (e.g., scandinavian design, fabric details).</li>
+        <li><strong>Product URL</strong>: A direct external hyperlink to the product's official purchase page.</li>
+        <li><strong>Category</strong>: Group tag (e.g., <code>Sofa</code>).</li>
+        <li><strong>Thumbnail</strong>: Select a 2D preview texture displayed in the catalog HUD panel.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti12/product_catalog_table.png" alt="Product Catalog Data Table">
+        <div class="image-caption">Figure 12.1: Editing catalog database entries, pricing, URLs, and descriptions within the Data Table.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+  <div id="point-12-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Assigning Product Info to Actors</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Link interactive scene assets to specific database rows:</p>
+    <ul class="steps-list">
+      <li>Select your target actor in the viewport (e.g., <code>canape</code>).
+      </li>
+      <li>In the components list, add the <code>ProductInfo</code> component (ensure the actor also contains the <code>Interactable</code> component).
+      </li>
+      <li>Select the <strong>ProductInfo</strong> component and go to the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Product Data Table</strong>: Bind the <code>ProductCatalog</code> asset containing the specifications.</li>
+        <li><strong>Product Row Name</strong>: Choose or type the default active Row Name (e.g., <code>Canape_Loft_4P</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-12-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Per-Variant Product Mapping</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">Sync specifications when a user switches furniture meshes:</p>
+    <ul class="steps-list">
+      <li>If the actor uses a <code>FurnitureSwapComponent</code>, expand the <strong>Catalog</strong> category under the <code>ProductInfo</code> settings.
+      </li>
+      <li>In the <strong>Per Variant Row Names</strong> array, add rows corresponding directly to the mesh options in the swap component.
+      </li>
+      <li>Assign each element index to its corresponding row name (e.g., Index [0] = <code>Canape_Loft_4P</code>, Index [1] = <code>Canape_Narozna_3P</code>, Index [2] = <code>Canape_Lavsit_3P</code>, etc.).
+      </li>
+      <li>When a user cycles through options in the viewport, the HUD catalog panel dynamically updates to show the selected variant's active specs, brand, pricing, and purchase link.
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti12/product_info_details.png" alt="Product Info Setup">
+        <div class="image-caption">Figure 12.2: Details panel configuration linking the ProductInfo component to the catalog table and variant rows.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="part-13" class="part-section">
+  <h2 class="part-header">Part 13: Room Annotation Component</h2>
+  <p class="part-intro">The <code>room_annotation</code> component enables spatial labeling and auto-dimensioning for zones and rooms. It displays interactive UI badges in the 3D viewport containing room names, height, floor surface area, and volume, alongside physical dimension guide lines.</p>
+  <div id="point-13-1" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Room Labeling & Badge Placement</h3>
+      <span class="point-badge">Point 1</span>
+    </div>
+    <p class="point-intro">Configure the basic labeling and 3D positioning for your room annotations:</p>
+    <ul class="steps-list">
+      <li>Select your annotation actor in the level (e.g., <code>salon_2</code>).
+      </li>
+      <li>Attach the <code>room_annotation</code> component.
+      </li>
+      <li>Select the <strong>room_annotation</strong> component and locate the <strong>Annotation</strong> and <strong>Display</strong> categories in the Details panel:
+      <ul class="substeps-list">
+        <li><strong>Room Name</strong>: Enter the text label shown in the 3D badge (e.g., <code>salon</code>).</li>
+        <li><strong>Badge Color</strong>: Click the color picker to set the theme color of the 3D floating tag.</li>
+        <li><strong>Annotation Offset</strong>: Define the X, Y, and Z coordinate offset values to position the text badge above the actor's pivot point (e.g., <code>0.0</code>, <code>0.0</code>, <code>120.0</code>).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-13-2" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Auto-Detection & Size Calculations</h3>
+      <span class="point-badge">Point 2</span>
+    </div>
+    <p class="point-intro">Configure raycasting options to automatically calculate room measurements:</p>
+    <ul class="steps-list">
+      <li>In the Details panel under the <strong>Auto-Detection</strong> category:
+      <ul class="substeps-list">
+        <li><strong>Auto Detect</strong>: Check this box to enable automatic raycast measuring.</li>
+        <li><strong>Max Raycast Distance</strong>: Define the maximum reach threshold for distance-measuring raycasts (e.g., <code>2000.0</code> units).</li>
+        <li><strong>Raycast Height Offset</strong>: Offset the height from the actor pivot where raycasts are fired (e.g., <code>100.0</code> units).</li>
+      </ul>
+      </li>
+      <li>Under the <strong>Display</strong> category, check the specifications to calculate and display:
+      <ul class="substeps-list">
+        <li><strong>Show Height</strong>: Toggle to compute and display the floor-to-ceiling height in meters.</li>
+        <li><strong>Show Surface</strong>: Toggle to calculate the surface area in square meters ($m^2$).</li>
+        <li><strong>Show Volume</strong>: Toggle to calculate the volume in cubic meters ($m^3$).</li>
+      </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="point-13-3" class="point-card">
+    <div class="point-header-container">
+      <h3 class="point-header">Dimensions Layout & Guide Lines</h3>
+      <span class="point-badge">Point 3</span>
+    </div>
+    <p class="point-intro">Customize the physical layout and visual measurement guidelines:</p>
+    <ul class="steps-list">
+      <li>Under the <strong>Display</strong> and <strong>Layout</strong> settings, configure dimension lines:
+      <ul class="substeps-list">
+        <li><strong>Show Dimension Lines</strong>: Check to render interactive measurement guidelines outlining room edges.</li>
+        <li><strong>Dimension Line Offset</strong>: Adjust the spacing/offset of the dimension lines from the wall surfaces (e.g., <code>30.0</code>).</li>
+        <li><strong>Highlight Thickness Multiplier</strong>: Set the line thickness for measurement guidelines (e.g., <code>2.0</code>).</li>
+      </ul>
+      </li>
+      <li>Manage bounding boxes and visibility:
+      <ul class="substeps-list">
+        <li><strong>Hide Mesh in Game</strong>: Check this box to hide the reference bounding static mesh or collision volume during play, showing only the text badge and dimension lines.</li>
+        <li><strong>Use Mesh Bounds for Dimensions</strong>: When checked, the component uses the static mesh's direct bounding box size to compute dimensions instead of utilizing active raycasting.</li>
+      </ul>
+      <div class="image-container" onclick="openLightbox(this)">
+        <img src="Images/parti13/room_annotation_setup.png" alt="Room Annotation Settings">
+        <div class="image-caption">Figure 13.1: Details panel configuration for room labeling, auto-detection, display parameters, and mesh visibility.</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+
+  </main>
+
+  <div id="lightbox">
+    <img id="lightbox-img" src="" alt="Zoomed screenshot">
+    <div id="lightbox-caption"></div>
+  </div>
+
+  <script>
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateToggleIcon(newTheme);
+    });
+
+    function updateToggleIcon(theme) {
+      themeToggleBtn.innerHTML = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    // Lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCap = document.getElementById('lightbox-caption');
+
+    function openLightbox(container) {
+      const img = container.querySelector('img');
+      const cap = container.querySelector('.image-caption');
+      lightboxImg.src = img.src;
+      lightboxCap.innerHTML = cap ? cap.innerHTML : '';
+      lightbox.classList.add('active');
+    }
+
+    lightbox.addEventListener('click', () => {
+      lightbox.classList.remove('active');
+    });
+
+    // Sidebar active point highlighting on scroll
+    const sections = document.querySelectorAll('.point-card');
+    const navLi = document.querySelectorAll('.sidebar-points li');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= sectionTop - 120) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLi.forEach(li => {
+        li.classList.remove('active');
+        const link = li.querySelector('a');
+        if (link && link.getAttribute('href') === `#${current}`) {
+          li.classList.add('active');
+        }
+      });
+    });
+    
+  </script>
+</body>
+</html>
